@@ -1,32 +1,28 @@
 class cell {
     constructor(posx, posy, type, hidden, innercoords, dimensions) {
         this.y = posy;
-        this.x = posx;
-        this.type = type;
-        this.innercoords = innercoords;
-        this.dim = dimensions;
-        this.hasbomb = false;
-        this.hidden = hidden;
-        this.number = 0;
-        this.flagged = false;
+        this.x = posx; //positions in pixels
+        this.innercoords = innercoords; //cell position inside the grid. example: [6,3]. top-right will be [0,0]
+        this.dim = dimensions; //dims in pixels
+        this.hasbomb = false; 
+        this.hidden = hidden; // if the cell has been clicked and revealed 
+        this.number = 0;    // bombs the cell has around, to be set by Grid after creation
+        this.flagged = false; //will contain if the cell has a flag on it
 
         
         this.img = new Image();
-        this.img.src = 'C:\\Users\\noelp\\Desktop\\buscamines\\flag.png';
+        this.img.src = 'C:\\Users\\noelp\\Desktop\\buscamines\\flag.png'; //defines the flag image
     }
     getCoords() {
-        return [this.x, this.y];
+        return [this.x, this.y]; 
     }
     flag () {
         if (this.flagged == true) {this.flagged = false;}
         else {this.flagged = true;}
-        return false;
+        return false; //switches if it has a flag
     }
     isFlagged () {
         return this.flagged;
-    }
-    getType () {
-        return this.type;
     }
     getX () {
         return this.x;
@@ -43,17 +39,18 @@ class cell {
     getInnerCoords () {
         return this.innercoords;
     }
-    
-    changeType (type) {
-        this.type = type;
-    }
+ 
     setNum (value) {
         this.number = value;
     }
     getNum () {return this.number;}
     hide(value) {
         this.hidden = value;
-        if (value == false) {
+        /*
+        if you reveal the cell, flag must go. 
+        This is used when it reveals a big chunk of cells since clicking on a cell isn't allowed anyway.
+        */
+        if (value == false) {  
             this.flagged = false;
         }
     }
@@ -61,44 +58,6 @@ class cell {
         return this.hidden;
     }
     draw() {
-        /*
-        switch (this.type) {
-            case 'bomb':
-                ctx.beginPath();
-                ctx.rect(this.x, this.y, this.dim, this.dim);
-                ctx.fillStyle = 'white';
-                ctx.fill();
-                break;
-            case 'default':
-                ctx.beginPath();
-                ctx.rect(this.x, this.y, this.dim, this.dim);
-                ctx.fillStyle = 'blue';
-                ctx.fill();
-                //ctx.stroke();
-                break;
-            case 'red':
-                ctx.beginPath();
-                ctx.rect(this.x, this.y, this.dim, this.dim);
-                ctx.fillStyle = 'red';
-                ctx.fill();
-                break;
-            case 'yellow':
-                ctx.beginPath();
-                ctx.rect(this.x, this.y, this.dim, this.dim);
-                ctx.fillStyle = 'yellow';
-                ctx.fill();
-                break;
-        }
-        if (!this.hidden) {
-            if (this.hasbomb) {
-                let i = (this.dim * 0.2)
-                ctx.font = this.dim - i + 'px serif';
-                ctx.fillStyle = 'black';
-                ctx.fillText('B', this.x + i, this.y + this.dim - i);
-                console.log('painted text');
-            } 
-        } else {
-        */
         if (this.hidden) {
             ctx.beginPath();
             ctx.rect(this.x, this.y, this.dim, this.dim);
@@ -114,7 +73,7 @@ class cell {
             ctx.strokeStyle = 'lightgrey'
             ctx.stroke();
                
-            if (this.number != 0) {
+            if (this.number != 0) {     // color of the cell's number will change like the original 
                 let num = this.number;
                 let i = (this.dim * 0.2)
                 ctx.font = this.dim - i + 'px serif';
@@ -147,12 +106,12 @@ class cell {
                 ctx.fillText(num, this.x + i, this.y + this.dim - i);
             }
         }
-        if (this.flagged) {
+        if (this.flagged) { 
             ctx.drawImage(this.img, this.x, this.y, this.dim, this.dim);
             console.log('flag')
         }
     }   
-    revealBomb () {
+    revealBomb () { // Used for when you loose and all bombs show up. 
         let bmb = new Image();
         bmb.src = 'C:\\Users\\noelp\\Desktop\\buscamines\\bomb.png';
         ctx.drawImage(bmb, this.x, this.y, this.dim, this.dim);
@@ -170,29 +129,30 @@ class cell {
 
 class grid {
     constructor (width ,height, bomb_n) {
-        this.bomb_n = bomb_n;
+        this.bomb_n = bomb_n; // number of bombs grid will have.
 
         this.grid = [];
-        this.dim = 25;
+        this.dim = 25; //each cell's dimension, could also be done by canvas.size/cell_number but this was good enough in this case.
 
-        if (Math.round(width/this.dim) != width/this.dim) {
-            alert('canvas divisable by ' + this.dim + ', cant make up a grid');
-        }
-        this.hor = width/this.dim;
+        this.hor = width/this.dim; // number of cells in the rows and columns
         this.ver = height/this.dim;
 
-        for (let y = 0; y < this.ver; y++) {
+        for (let y = 0; y < this.ver; y++) { // creates cells and appends to a grid list. 
             for (let x = 0; x < this.hor; x++) {
                 this.grid.push(new cell(x * this.dim , y * this.dim, 'default', true, [x, y], this.dim));
             }   
         }
 
-        let positions = [];
-        for (let y = 0; y < this.bomb_n; y++) {
+        //creates positions for bombs
+        //basically randomly selects selects cells from the list and adds them a bomb.
+        //also makes a list of the bombs for easy access.
+
+        let positions = []; 
+        for (let y = 0; y < this.bomb_n; y++) { 
             let max = this.grid.length;
             let min = 0;
-            positions.push(Math.round(Math.random() * (max - min) + min));
-        }
+            positions.push(Math.round(Math.random() * (max - min) + min)); //this is a random number
+        } 
         this.bombs = [];
         for (let y = 0; y < positions.length; y++) {
             let index = positions[y];
@@ -210,6 +170,7 @@ class grid {
     }
 
     isOutOfBorder (coords) {
+        //basically checks if a cell exists
         let x = coords[0];
         let y = coords[1];
         if (
@@ -221,17 +182,17 @@ class grid {
             return true;
         } else {
             return false;
-        }
+        } 
     }
 
-    getCell (coords) {
+    getCell (coords) { //this will return a cell feeding it its coordiantes inside the grid(ex. [3,5])
         if (!this.isOutOfBorder(coords)) {
             for (let y = 0; y < this.grid.length; y++) {
                 let Cell = this.grid[y];
                 let icoords = Cell.getInnerCoords();
                 if (icoords[0] == coords[0] && icoords[1] == coords[1]) { 
                     return Cell;
-                    break;
+                    break; 
                 }
             }
             return false;
@@ -241,7 +202,7 @@ class grid {
         }
     }
 
-    getAdjacentCells (daCell, dist) {
+    getAdjacentCells (daCell, dist) { //will return the cells around a cell
         let coords = daCell.getInnerCoords();
         let xmin = coords[0] - dist;
         let xmax = coords[0] + dist;
@@ -253,10 +214,8 @@ class grid {
             for (let x = xmin; x <= xmax; x++) {
                 if (!this.isOutOfBorder([x,y])) {
                     if (x == coords[0] && y == coords[1]) { //do not count if is the same cell that requested adjacent.
-                        //console.log('[' + x + ',' + y + '] is the same');
                     }
                     else {
-                        //console.log('[' + x + ',' + y + ']');
                         cellList.push(this.getCell([x,y]));
                     }
                 }
@@ -266,7 +225,7 @@ class grid {
         return cellList;
     }
 
-    setNumbers () {
+    setNumbers () { //checks how many bombs does each cell have around and sets their number
         let i = []
         for (let y = 0; y < this.grid.length; y++) {
 
@@ -277,7 +236,7 @@ class grid {
         }
     }
 
-    bombsAround(Cell) {
+    bombsAround(Cell) { //getAdjacent but with bombs
         let i = this.getAdjacentCells(Cell,1);
         let yy = []
         for (let j = 0; j < i.length; j++) {
@@ -288,21 +247,20 @@ class grid {
         return yy;
     }
 
-    hasBombsAround (Cell) {
+    hasBombsAround (Cell) { //bombsAround but as boolean
         let i = this.bombsAround(Cell);
         return (i.length != 0);
     }
 
 
-    drawAllBoard () {
+    drawAllBoard () { //draws all cells, used for example at start.
         for (let y = 0; y < this.grid.length; y++) {
             let Cell = this.grid[y];
             Cell.draw();
-            //drawCell([Cell.getX(), Cell.getY()], this.dim , Cell.getType());
         }
     }
 
-    showBombs () { 
+    showBombs () { //cool animation for when you loose.
         console.log('bout to check bombs');
         drawBombs(this.bombs);
     }
@@ -311,12 +269,7 @@ class grid {
 function drawBombs(bombs) {
     var num = 0;
 
-
-
-    /*while (num < 100) {
-        var timeoutID = setTimeout(drawNewBomb(), 5000);
-    }*/
-    var interval = setInterval(function () {
+    var interval = setInterval(function () { //sets interval to make bombs appear one by one.
         console.log(num);
         if (num >= bombs.length - 1) {
             clearInterval(interval);

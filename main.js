@@ -3,12 +3,13 @@ var ctx = canvas.getContext("2d");
 
 var Grid = new grid(canvas.width, canvas.height, 200);
 
-function clearCanvas() {
+function clearCanvas() { 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 }
 
 
 function checkColliding(clicks) {
+    //this checks if a click position ends in any cell & retruns it.
     let clickX = clicks[0];
     let clickY = clicks[1];
 
@@ -30,7 +31,7 @@ function checkColliding(clicks) {
 
 function LeftClick (Cell) {
     if (!Cell.isFlagged()) {
-        if (Cell.hasBomb()) {
+        if (Cell.hasBomb()) { //loose if you clicked a bomb.s
             Cell.revealBomb();
             Grid.showBombs();
             return;
@@ -43,7 +44,7 @@ function LeftClick (Cell) {
         console.log(Cell.getNum());
 
         let toCheck = [Cell];
-        function check (Cells) {
+        function check (Cells) { //if a lot of cells are empty are together, it will reveal a big portion of the map 
             let toCheckNext = [];
             for (kk = 0; kk < Cells.length; kk++) {
                 Cell = Cells[kk];
@@ -63,7 +64,7 @@ function LeftClick (Cell) {
             console.log('hh')
             return toCheckNext;
         }
-        if (Cell.getNum() == 0) {
+        if (Cell.getNum() == 0) { //this will keep revealing cells until it can't.
             while (toCheck.length > 0) {
                 toCheck = check(toCheck);
             }
@@ -72,37 +73,24 @@ function LeftClick (Cell) {
 }
 
 function RightClick (Cell) {
-    console.log('right click');
+    console.log('right click'); //Right click, flags a cell.
     if (Cell.ishidden()) {
         Cell.flag();
         Cell.draw();
     }
 }
 
-function Test() {
-    let i = Grid.getCell([2,0]);
-    if (i != false) {
-        console.log(i.getType());
-    } else {
-        console.log('returned false')
-    }
-}
-
-function updateBoard() {
+function updateBoard() { //may be used in future for restarting a game, currently useless.
     clearCanvas()
     Grid.drawAllBoard();
 }
 
-function startGame () {
-    /*GAMERUNNING = true;
-    createObjects()
-    var interval = setInterval(drawFrame, 1);   */ 
-
+function startGame () {  //function called at start
     Grid.drawAllBoard();
     Grid.setNumbers ();
 }
 
-function getCursorPosition(canvas, event) {
+function getCursorPosition(canvas, event) { //will return the position of the click on event.
     const rect = canvas.getBoundingClientRect();
     const x = event.clientX - rect.left;
     const y = event.clientY - rect.top;
@@ -111,7 +99,7 @@ function getCursorPosition(canvas, event) {
     return result;
 }
 
-canvas.addEventListener('mousedown', function(e) {
+canvas.addEventListener('mousedown', function(e) { // listener for right and left click.
     let x = checkColliding(getCursorPosition(canvas, e))
     if(e.button == 0) {
         LeftClick(x);
@@ -121,6 +109,6 @@ canvas.addEventListener('mousedown', function(e) {
     }
 });
 
-canvas.addEventListener('contextmenu', (e) => { e.preventDefault(); }, false);
+canvas.addEventListener('contextmenu', (e) => { e.preventDefault(); }, false); // this prevents de default of the right click but the functionality is done in the previous function
 
 startGame();
