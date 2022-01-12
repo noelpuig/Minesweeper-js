@@ -11,7 +11,7 @@ class cell {
 
         
         this.img = new Image();
-        this.img.src = 'C:\\Users\\noelp\\Desktop\\buscamines\\flag.png'; //defines the flag image
+        this.img.src = 'flag.png'; //defines the flag image
     }
     getCoords() {
         return [this.x, this.y]; 
@@ -113,7 +113,7 @@ class cell {
     }   
     revealBomb () { // Used for when you loose and all bombs show up. 
         let bmb = new Image();
-        bmb.src = 'C:\\Users\\noelp\\Desktop\\buscamines\\bomb.png';
+        bmb.src = 'bomb.png';
         ctx.drawImage(bmb, this.x, this.y, this.dim, this.dim);
         if (this.flagged) {
             ctx.drawImage(this.img, this.x, this.y, this.dim, this.dim);
@@ -145,7 +145,7 @@ class grid {
 
         //creates positions for bombs
         //basically randomly selects selects cells from the list and adds them a bomb.
-        //also makes a list of the bombs for easy access.
+        //also makes a list of the bombs for easy access later.
 
         let positions = []; 
         for (let y = 0; y < this.bomb_n; y++) { 
